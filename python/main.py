@@ -5,7 +5,7 @@ from arduino.app_bricks.web_ui import WebUI
 
 from camera import Camera
 
-DEFAULT_EXPOSURE = 5000  #2200 
+DEFAULT_EXPOSURE = 2200 
 DEFAULT_ANALOGUE_GAIN = 98
 
 ui = WebUI()
