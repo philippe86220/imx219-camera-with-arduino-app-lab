@@ -5,7 +5,7 @@ from arduino.app_bricks.web_ui import WebUI
 
 from camera import Camera
 
-DEFAULT_EXPOSURE =   2200 
+DEFAULT_EXPOSURE = 5000  #2200 
 DEFAULT_ANALOGUE_GAIN = 98
 
 ui = WebUI()
@@ -33,30 +33,26 @@ def envoyer_reglages_initiaux(
     _data
 ):
     try:
-        # On applique les valeurs par défaut
-        # à la caméra.
-        camera.set_controls(
+        result = camera.set_controls(
             DEFAULT_EXPOSURE,
             DEFAULT_ANALOGUE_GAIN
         )
 
-        # Puis on envoie exactement les mêmes
-        # valeurs à la WebUI.
         ui.send_message(
             "camera_defaults",
             {
                 "exposure":
-                    DEFAULT_EXPOSURE,
+                    result["exposure"],
 
                 "analogue_gain":
-                    DEFAULT_ANALOGUE_GAIN
+                    result["analogue_gain"]
             }
         )
 
         print(
             f">>> Caméra et WebUI synchronisées : "
-            f"exposure={DEFAULT_EXPOSURE}, "
-            f"gain={DEFAULT_ANALOGUE_GAIN}",
+            f"exposure={result['exposure']}, "
+            f"gain={result['analogue_gain']}",
             flush=True
         )
 
