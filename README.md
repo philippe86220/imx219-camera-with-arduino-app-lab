@@ -179,7 +179,7 @@ In simple terms:
                    ▼
                  IMX219
 
-                 ## Communication between the WebUI and `main.py`
+## Communication between the WebUI and `main.py`
 
 The WebUI displayed in the browser and the Python application need to exchange information.
 
