@@ -990,3 +990,132 @@ User clicks "Prendre une photo"
 ```
 
 Once the application is running, all normal camera operations can therefore be performed directly from the WebUI.
+
+## The custom camera brick
+
+The camera functionality is implemented as a custom App Lab brick located in:
+
+```text
+bricks/camera/
+```
+
+This brick has two different sides:
+
+```text
+Main application side                  Camera service side
+
+__init__.py                            camera_service.py
+     │                                      │
+     │                                      │
+Camera Python interface                Camera implementation
+     │                                      │
+     └────────── local HTTP ────────────────┘
+```
+
+Two configuration files tell App Lab how this brick is defined and how its service must be started.
+
+### `brick_config.yaml`
+
+The file:
+
+```text
+bricks/camera/brick_config.yaml
+```
+
+identifies the brick:
+
+```yaml
+id: camera
+name: camera
+```
+
+The identifier `camera` is then used by the application configuration.
+
+### `app.yaml`
+
+At the root of the project, `app.yaml` declares the bricks used by the application:
+
+```yaml
+bricks:
+- arduino:web_ui: {}
+- camera: {}
+```
+
+The application therefore uses two bricks:
+
+```text
+arduino:web_ui   → provides the WebUI functionality
+camera           → provides the custom camera functionality
+```
+
+As explained earlier, these two bricks do not each create their own container.
+
+The WebUI functionality is integrated into the main application environment, while the custom `camera` brick defines its own service and therefore creates the separate `camera-1` container.
+
+### `brick_compose.yaml`
+
+The file:
+
+```text
+bricks/camera/brick_compose.yaml
+```
+
+describes the environment required by the camera service.
+
+It defines:
+
+- the Python environment used by the service;
+- the Linux camera devices made available to the container;
+- the camera brick directory mounted inside the container;
+- the additional software dependencies;
+- the command used to start `camera_service.py`.
+
+The required packages are installed automatically:
+
+```text
+v4l-utils
+python3-numpy
+python3-pil
+```
+
+The required Linux camera devices are also passed to the container, including:
+
+```text
+/dev/media0
+/dev/video0
+/dev/v4l-subdev0
+/dev/v4l-subdev2
+/dev/v4l-subdev4
+/dev/v4l-subdev12
+```
+
+Finally, the container starts:
+
+```text
+/camera/camera_service.py
+```
+
+In simple terms:
+
+```text
+app.yaml
+   │
+   │ declares the camera brick
+   ▼
+bricks/camera/
+   │
+   ├── brick_config.yaml
+   │      identifies the brick
+   │
+   ├── __init__.py
+   │      provides the Python interface
+   │
+   ├── brick_compose.yaml
+   │      defines the camera container
+   │
+   └── camera_service.py
+          runs inside that container
+          and controls the camera
+```
+
+This is why adding the `camera` brick to the application gives `main.py` a simple Python camera interface while also providing a separate environment in which the low-level camera service can run.
