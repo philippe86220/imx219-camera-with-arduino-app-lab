@@ -718,8 +718,8 @@ Now that the different parts of the application have been introduced, the reposi
 │       └── camera_service.py
 │
 ├── images/
-│   ├── imx219-camera.jpg
-│   └── uno-media-carrier.jpg
+│   ├── imx219-camera.png
+│   └── uno-media-carrier.png
 │
 ├── python/
 │   └── main.py
