@@ -1229,3 +1229,53 @@ This version should therefore be considered a working and understandable foundat
 Its main purpose is to demonstrate how the different App Lab, Linux, WebUI and camera components can work together while keeping each step visible in the source code.
 
 Future versions can build on this foundation without changing the basic architecture.
+
+## Development notes
+
+This project was developed step by step on a real Arduino UNO Q equipped with an Arduino® UNO™ Media Carrier and a Sony IMX219 camera connected to `CAMERA0`.
+
+The application was tested throughout development with different exposure and analogue gain settings and under different lighting conditions.
+
+After completion, the project was exported from Arduino App Lab and then re-imported and tested again to verify that the repository contains everything required to recreate the application.
+
+The project deliberately uses relatively simple and visible mechanisms wherever possible.
+
+The goal is not only to obtain an image from the IMX219, but also to make the complete path understandable:
+
+```text
+User
+ │
+ ▼
+WebUI
+ │
+ ▼
+main.py
+ │
+ ▼
+Camera class
+ │
+ ▼
+Local HTTP service
+ │
+ ▼
+Linux camera tools
+ │
+ ▼
+IMX219
+ │
+ ▼
+RAW Bayer image
+ │
+ ▼
+Python image processing
+ │
+ ▼
+JPEG
+ │
+ ▼
+WebUI
+```
+
+For someone discovering Arduino App Lab, the important idea is that each layer has a specific responsibility.
+
+Understanding these layers separately makes the complete application much easier to understand, modify and extend.
