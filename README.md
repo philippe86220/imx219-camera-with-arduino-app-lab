@@ -60,7 +60,7 @@ The following sections explain these different layers step by step.
 This project was developed and tested with the following environment:
 
 ```text
-Board:           Arduino UNO Q — 4 GB version
+Board:            Arduino UNO Q — 4 GB version
 Operating system: Debian Linux
 Arduino App Lab:  0.10.0
 Python:           3.13
