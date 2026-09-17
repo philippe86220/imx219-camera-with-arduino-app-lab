@@ -695,3 +695,142 @@ Web browser
 `app.js` receives the Base64 data and uses it as the source of the image displayed in the WebUI.
 
 The complete process, from the sensor to the browser, is therefore handled by the application without requiring the user to manually manipulate the RAW or JPEG files.
+
+## Repository structure
+
+Now that the different parts of the application have been introduced, the repository structure becomes easier to understand.
+
+```text
+.
+├── assets/
+│   ├── libs/
+│   │   ├── arduino.js
+│   │   └── socket.io.min.js
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
+│
+├── bricks/
+│   └── camera/
+│       ├── __init__.py
+│       ├── brick_compose.yaml
+│       ├── brick_config.yaml
+│       └── camera_service.py
+│
+├── images/
+│   ├── imx219-camera.jpg
+│   └── uno-media-carrier.jpg
+│
+├── python/
+│   └── main.py
+│
+├── .gitignore
+├── app.yaml
+└── README.md
+```
+
+Each directory has a specific purpose.
+
+### `assets/`
+
+The `assets/` directory contains the WebUI.
+
+```text
+assets/
+├── libs/
+│   ├── arduino.js
+│   └── socket.io.min.js
+├── app.js
+├── index.html
+└── style.css
+```
+
+- `index.html` defines the structure of the user interface.
+- `style.css` defines its appearance.
+- `app.js` manages the user interactions and exchanges messages with `main.py`.
+- `libs/arduino.js` provides the App Lab WebUI JavaScript interface used by the application.
+- `libs/socket.io.min.js` provides the underlying Socket.IO communication support used by the WebUI.
+
+### `python/`
+
+The `python/` directory contains the main Python application:
+
+```text
+python/
+└── main.py
+```
+
+`main.py` is the central application logic.
+
+It receives messages from the WebUI, requests operations from the camera brick, and sends the results back to the WebUI.
+
+It also defines the initial exposure and analogue gain values used when the application starts.
+
+### `bricks/camera/`
+
+This directory contains the custom camera brick:
+
+```text
+bricks/camera/
+├── __init__.py
+├── brick_compose.yaml
+├── brick_config.yaml
+└── camera_service.py
+```
+
+Each file has a different role:
+
+- `__init__.py` provides the `Camera` Python class used by `main.py` to communicate with the camera service.
+- `camera_service.py` runs the local HTTP camera service and contains the camera acquisition and image processing code.
+- `brick_compose.yaml` defines the dedicated camera container, its dependencies, and the Linux devices made available to it.
+- `brick_config.yaml` identifies the custom brick to App Lab.
+
+Together, these files keep all camera-specific functionality inside a separate and reusable part of the application.
+
+### `images/`
+
+The `images/` directory contains the pictures used by this README to document the hardware used for the project.
+
+### `app.yaml`
+
+`app.yaml` describes the App Lab application and declares the bricks it uses.
+
+For this project, these include:
+
+```text
+arduino:web_ui
+camera
+```
+
+The first provides the WebUI functionality.
+
+The second is the custom camera brick contained in `bricks/camera/`.
+
+### `.gitignore`
+
+`.gitignore` prevents automatically generated Python files from being added to the repository.
+
+For this project, it excludes:
+
+```text
+__pycache__/
+*.pyc
+```
+
+These files may be created automatically when Python runs and are not part of the application source code.
+
+### `README.md`
+
+This file contains the documentation you are currently reading.
+
+The important point is that the repository reflects the same separation of responsibilities described earlier:
+
+```text
+assets/          → user interface
+python/          → main application logic
+bricks/camera/   → camera service and hardware access
+images/          → documentation images
+app.yaml         → App Lab application definition
+```
+
+This organization makes it easier to understand which part of the project should be examined when learning, modifying, or debugging a specific function.
