@@ -834,3 +834,159 @@ app.yaml         → App Lab application definition
 ```
 
 This organization makes it easier to understand which part of the project should be examined when learning, modifying, or debugging a specific function.
+
+## Running the application
+
+The project is designed to be opened and executed directly with Arduino App Lab.
+
+The repository has been exported from App Lab and then re-imported and tested successfully. This confirms that the files contained in the repository are sufficient to recreate and run the application.
+
+### Before starting
+
+Make sure that:
+
+- the Arduino UNO Q is powered and available in App Lab;
+- the Arduino® UNO™ Media Carrier is correctly connected;
+- the IMX219 camera is connected to the Media Carrier with its ribbon cable.
+
+No manual installation of NumPy, Pillow or `v4l-utils` is required.
+
+The camera brick takes care of installing these dependencies inside its own container.
+
+### Starting the application
+
+Open the project in Arduino App Lab and start the application.
+
+App Lab will prepare and start the required containers:
+
+```text
+main-1
+camera-1
+```
+
+The complete container names depend on the application and project names, so they may be longer on the system.
+
+The first container runs the main application and WebUI environment.
+
+The second container runs the custom camera service.
+
+When the application starts, `main.py` waits for the camera service to become available before using it.
+
+### Initial camera settings
+
+The initial camera settings are defined in:
+
+```text
+python/main.py
+```
+
+For this version of the project, the default values are:
+
+```text
+Exposure:       2200
+Analogue gain:  98
+```
+
+These values are sent both to the camera and to the WebUI when the application starts.
+
+This is important because `main.py` is the single source of truth for the initial camera settings. The initial values are not duplicated in the HTML or JavaScript code.
+
+The WebUI therefore always displays the same initial values that are applied to the camera.
+
+### Adjusting exposure and analogue gain
+
+The WebUI provides two sliders:
+
+```text
+Exposure
+Analogue gain
+```
+
+The available ranges are:
+
+```text
+Exposure:       4 to 3522
+Analogue gain:  0 to 232
+```
+
+`Exposure` controls how long the sensor collects light.
+
+`Analogue gain` amplifies the sensor signal before it is converted into the digital image data. It plays a role similar to ISO sensitivity on a digital camera, although the numerical values are not ISO values.
+
+After choosing the desired values, click:
+
+```text
+Appliquer les réglages
+```
+
+The settings are then sent through the complete application chain:
+
+```text
+WebUI
+  │
+  ▼
+main.py
+  │
+  ▼
+Camera class
+  │
+  ▼
+camera_service.py
+  │
+  ▼
+IMX219
+```
+
+### Capturing a photo
+
+To capture an image, click:
+
+```text
+Prendre une photo
+```
+
+The camera service captures one full-resolution RAW frame and performs the image processing described earlier.
+
+The resulting JPEG image is returned to the main application and then displayed directly in the WebUI.
+
+The complete operation is therefore:
+
+```text
+User clicks "Prendre une photo"
+              │
+              ▼
+          app.js
+              │
+              ▼
+          main.py
+              │
+              ▼
+        Camera class
+              │
+              ▼
+      camera_service.py
+              │
+              ▼
+           IMX219
+              │
+              ▼
+        RAW acquisition
+              │
+              ▼
+       Image processing
+              │
+              ▼
+            JPEG
+              │
+              ▼
+       Base64 transfer
+              │
+              ▼
+           app.js
+              │
+              ▼
+     Image displayed
+      in the browser
+```
+
+Once the application is running, all normal camera operations can therefore be performed directly from the WebUI.
