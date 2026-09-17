@@ -847,7 +847,7 @@ Make sure that:
 
 - the Arduino UNO Q is powered and available in App Lab;
 - the Arduino® UNO™ Media Carrier is correctly connected;
-- the IMX219 camera is connected to the Media Carrier with its ribbon cable.
+- the IMX219 camera is connected to the `CAMERA0` connector of the Arduino® UNO™ Media Carrier using the appropriate ribbon cable.
 
 No manual installation of NumPy, Pillow or `v4l-utils` is required.
 
