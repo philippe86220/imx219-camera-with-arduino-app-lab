@@ -2,7 +2,7 @@
 
 ## Project overview
 
-This project demonstrates how to use a Sony IMX219 camera with an Arduino UNO Q, Arduino App Lab, and the Media Carrier.
+This project demonstrates how to use a Sony IMX219 camera with an Arduino UNO Q, the Arduino® UNO™ Media Carrier, and Arduino App Lab.
 
 The application provides a simple WebUI that allows the user to:
 
