@@ -530,3 +530,168 @@ bricks/camera/brick_compose.yaml
 The user does not need to install them manually on the UNO Q Linux system.
 
 This is one of the advantages of using a dedicated container: the camera-specific tools and Python libraries remain isolated from the main application environment.
+
+## From RAW Bayer data to JPEG
+
+When the IMX219 captures an image, it does not directly produce the final color JPEG displayed in the WebUI.
+
+The application first captures a full-resolution RAW frame:
+
+```text
+3280 × 2464 pixels
+```
+
+This RAW frame contains the values measured directly from the camera sensor.
+
+### The Bayer RGGB pattern
+
+The IMX219 uses a Bayer color filter pattern.
+
+In this project, the captured RAW data uses an RGGB arrangement:
+
+```text
+R G R G R G ...
+G B G B G B ...
+R G R G R G ...
+G B G B G B ...
+...
+```
+
+Each sensor position therefore measures only one color component:
+
+```text
+R = Red
+G = Green
+B = Blue
+```
+
+A RAW pixel does not yet contain complete Red, Green and Blue values.
+
+This is why the RAW frame cannot simply be displayed as a normal color photograph.
+
+### Demosaicing
+
+The first processing step is called demosaicing.
+
+The application reconstructs the missing color components for each pixel by using the values of neighboring pixels.
+
+In simple terms:
+
+```text
+RAW Bayer data
+      │
+      │ demosaicing
+      ▼
+RGB image
+```
+
+The demosaicing is performed directly in `camera_service.py` using NumPy.
+
+The project uses a simple bilinear interpolation method. Its purpose is not to reproduce the complete image processing pipeline of a modern digital camera, but to obtain a usable RGB image directly from the RAW IMX219 data.
+
+### Automatic white balance
+
+After demosaicing, the RGB image requires color correction.
+
+The application uses a simple automatic white balance method known as Gray World.
+
+It calculates the average level of the Red, Green and Blue channels and applies correction coefficients to bring their average levels closer together.
+
+In simple terms:
+
+```text
+RGB image
+    │
+    │ Gray World white balance
+    ▼
+More balanced colors
+```
+
+This correction is calculated independently for every captured image.
+
+### Shadow correction
+
+After white balance, a custom correction curve is applied to the image.
+
+Its purpose is to brighten dark areas while:
+
+- preserving absolute black;
+- progressively reducing the correction in brighter areas;
+- protecting the highlights from unnecessary modification.
+
+This provides more visible detail in the shadows without applying the same brightness increase to the complete image.
+
+### Contrast and sharpness
+
+Two final adjustments are then applied with Pillow:
+
+- a small contrast enhancement;
+- an Unsharp Mask to improve perceived sharpness.
+
+These adjustments are deliberately moderate in order to keep the resulting image natural.
+
+### JPEG creation
+
+After all processing steps are complete, the RGB image is saved as a JPEG with a quality setting of `92`.
+
+The complete image processing pipeline can therefore be summarized as:
+
+```text
+IMX219 sensor
+      │
+      ▼
+RAW Bayer RGGB
+3280 × 2464
+      │
+      ▼
+Bilinear demosaicing
+      │
+      ▼
+RGB image
+      │
+      ▼
+Gray World white balance
+      │
+      ▼
+Shadow correction
+      │
+      ▼
+Contrast enhancement
+      │
+      ▼
+Unsharp Mask
+      │
+      ▼
+JPEG
+quality = 92
+```
+
+### Sending the image to the WebUI
+
+The JPEG file still has to travel from the `camera-1` container to the WebUI.
+
+`camera_service.py` first encodes the JPEG file as Base64 text.
+
+The image then follows the reverse path through the application:
+
+```text
+camera_service.py
+      │
+      │ Base64 JPEG
+      ▼
+Camera class
+      │
+      ▼
+main.py
+      │
+      │ "photo_update"
+      ▼
+app.js
+      │
+      ▼
+Web browser
+```
+
+`app.js` receives the Base64 data and uses it as the source of the image displayed in the WebUI.
+
+The complete process, from the sensor to the browser, is therefore handled by the application without requiring the user to manually manipulate the RAW or JPEG files.
