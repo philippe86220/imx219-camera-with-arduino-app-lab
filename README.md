@@ -1119,3 +1119,113 @@ bricks/camera/
 ```
 
 This is why adding the `camera` brick to the application gives `main.py` a simple Python camera interface while also providing a separate environment in which the low-level camera service can run.
+
+## Current limitations and future work
+
+This first version of the project intentionally keeps camera control simple.
+
+The objective was first to build and understand a complete working chain:
+
+```text
+WebUI
+  │
+  ▼
+main.py
+  │
+  ▼
+Camera class
+  │
+  ▼
+camera_service.py
+  │
+  ▼
+Linux camera interface
+  │
+  ▼
+IMX219
+```
+
+and, in the opposite direction:
+
+```text
+IMX219
+  │
+  ▼
+RAW Bayer image
+  │
+  ▼
+Image processing
+  │
+  ▼
+JPEG
+  │
+  ▼
+WebUI
+```
+
+### Manual exposure control
+
+In this version, exposure and analogue gain are adjusted manually from the WebUI.
+
+The application does not yet analyze the captured image to determine the best exposure automatically.
+
+This was a deliberate choice: keeping these controls manual makes it easier to understand and test the camera pipeline before adding automatic control.
+
+### No automatic exposure yet
+
+A future version could implement automatic exposure control.
+
+A simple strategy could progressively adjust:
+
+```text
+Exposure
+    │
+    ▼
+Analogue gain
+```
+
+The exposure time could be adjusted first, with analogue gain increased when additional brightness is required.
+
+This would help limit unnecessary amplification and image noise.
+
+The exact automatic exposure algorithm is not part of this version and remains future work.
+
+### Digital gain
+
+Digital gain is not used by the current application.
+
+Unlike analogue gain, which amplifies the sensor signal before digital conversion, digital gain operates on image data after conversion.
+
+The current project therefore concentrates on:
+
+```text
+Exposure
+Analogue gain
+```
+
+and leaves digital gain outside the scope of this first version.
+
+### Image processing
+
+The image processing pipeline is intentionally simple and implemented directly in Python using NumPy and Pillow.
+
+It provides:
+
+- bilinear Bayer demosaicing;
+- Gray World automatic white balance;
+- shadow correction;
+- moderate contrast enhancement;
+- moderate sharpening;
+- JPEG generation.
+
+This pipeline produces a usable image while remaining understandable and easy to experiment with.
+
+It is not intended to reproduce the much more complex image processing pipeline found in a modern digital camera or smartphone.
+
+### Purpose of this first version
+
+This version should therefore be considered a working and understandable foundation.
+
+Its main purpose is to demonstrate how the different App Lab, Linux, WebUI and camera components can work together while keeping each step visible in the source code.
+
+Future versions can build on this foundation without changing the basic architecture.
