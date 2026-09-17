@@ -260,10 +260,10 @@ app.js  ── "get_camera_defaults" ──────────►  main.py
 app.js  ◄─ "camera_defaults" ───────────────  main.py
 
 app.js  ── "regler_camera" ────────────────►  main.py
-app.js  ◄─ "camera_settings_update" ─────────  main.py
+app.js  ◄─ "camera_settings_update" ───────── main.py
 
-app.js  ── "prendre_photo" ─────────────────►  main.py
-app.js  ◄─ "photo_update" ───────────────────  main.py
+app.js  ── "prendre_photo" ─────────────────► main.py
+app.js  ◄─ "photo_update" ─────────────────── main.py
 ```
 
 The message name acts like a label: it tells the receiving side what kind of information has arrived.
