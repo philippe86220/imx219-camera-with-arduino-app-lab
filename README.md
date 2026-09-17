@@ -55,6 +55,31 @@ The Media Carrier provides the hardware interface used to connect the IMX219 cam
 
 The following sections explain these different layers step by step.
 
+## Tested environment
+
+This project was developed and tested with the following environment:
+
+```text
+Board:           Arduino UNO Q — 4 GB version
+Operating system: Debian Linux
+Arduino App Lab:  0.10.0
+Python:           3.13
+Camera:           Sony IMX219
+Camera interface: Arduino® UNO™ Media Carrier — CAMERA0
+```
+
+The camera service also uses:
+
+```text
+v4l-utils
+NumPy
+Pillow
+```
+
+These dependencies are installed automatically inside the dedicated camera container.
+
+Their exact versions are not fixed by this project and may depend on the container image and package repositories available when the container is built.
+
 ## Hardware and software requirements
 
 ### Hardware
