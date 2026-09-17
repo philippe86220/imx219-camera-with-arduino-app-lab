@@ -83,7 +83,7 @@ supplied with its camera ribbon cable.
 
 [Camera used for this project (Amazon France)](https://www.amazon.fr/dp/B0CPM292WP)
 
-![Sony IMX219 camera module and ribbon cable](images/imx219-camera.png)
+![Sony IMX219 camera module and ribbon cable](images/mx219-camera.png)
 
 ### Software
 
