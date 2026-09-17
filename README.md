@@ -94,3 +94,87 @@ on the Linux system. The additional packages needed by the camera service
 are installed automatically inside its dedicated container.
 
 These dependencies will be described later when we look at the camera brick.
+
+## Understanding the two containers
+
+When the application starts, App Lab runs two containers.
+
+Their exact names depend on the name of the application, but they can be
+identified by their final part:
+
+- `main-1`
+- `camera-1`
+
+For this project, they have two clearly separated roles.
+
+### The main container
+
+The `main-1` container runs the main App Lab application.
+
+It is responsible for:
+
+- executing `python/main.py`;
+- providing the App Lab runtime used by the application;
+- managing the WebUI brick;
+- making the files in `assets/` available to the WebUI.
+
+The WebUI does not run in a separate third container.
+
+The HTML, CSS and JavaScript files define the interface displayed in the
+web browser, while `main.py` contains the main Python logic of the application.
+
+In simple terms:
+
+    Web browser
+         │
+         │ WebUI
+         ▼
+    ┌──────────────────────────────┐
+    │ main-1 container             │
+    │                              │
+    │ python/main.py               │
+    │ WebUI                        │
+    │ assets/                      │
+    │   index.html                 │
+    │   app.js                     │
+    │   style.css                  │
+    └──────────────────────────────┘
+
+### The camera container
+
+The `camera-1` container is created by the custom `camera` brick.
+
+Its main purpose is to isolate everything that is specific to the camera.
+
+It runs `camera_service.py`, which:
+
+- receives requests from the main application;
+- configures the Linux camera pipeline;
+- controls the IMX219 sensor;
+- captures the RAW image;
+- processes the image;
+- returns the resulting JPEG image to the main application.
+
+The additional Linux and Python dependencies required for these operations
+are installed automatically inside this container.
+
+In simple terms:
+
+    ┌──────────────────────────────┐
+    │ main-1 container             │
+    │                              │
+    │ main.py                      │
+    └──────────────┬───────────────┘
+                   │
+                   │ local HTTP communication
+                   ▼
+    ┌──────────────────────────────┐
+    │ camera-1 container           │
+    │                              │
+    │ camera_service.py            │
+    │ V4L2 / Media Controller      │
+    │ NumPy / Pillow               │
+    └──────────────┬───────────────┘
+                   │
+                   ▼
+                 IMX219
