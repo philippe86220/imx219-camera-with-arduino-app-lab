@@ -397,3 +397,136 @@ IMX219
 This separation is useful because `main.py` remains easy to read and does not contain the low-level code required to control the camera.
 
 The camera-specific implementation is kept inside the camera brick.
+
+## How `camera_service.py` controls the camera
+
+The `camera-1` container runs:
+
+```text
+bricks/camera/camera_service.py
+```
+
+This service is the part of the application that communicates with the Linux camera system.
+
+It receives simple HTTP requests from the `Camera` class and translates them into camera operations.
+
+### The three HTTP endpoints
+
+The service provides three endpoints:
+
+```text
+/health
+/set_controls
+/capture
+```
+
+Each endpoint has a specific role.
+
+#### `/health`
+
+The `/health` endpoint allows the main application to check whether the camera service is running and ready to receive requests.
+
+This is used by `main.py` before trying to communicate with the camera service.
+
+#### `/set_controls`
+
+The `/set_controls` endpoint receives the requested exposure and analogue gain values.
+
+For example:
+
+```text
+/set_controls?exposure=2200&analogue_gain=98
+```
+
+The service checks the values and then applies them to the IMX219 sensor.
+
+The supported ranges used by this project are:
+
+```text
+Exposure:       4 to 3522
+Analogue gain:  0 to 232
+```
+
+Values outside these ranges are limited to the nearest valid value before being sent to the camera.
+
+#### `/capture`
+
+The `/capture` endpoint starts the complete image acquisition process.
+
+The service:
+
+1. configures the camera pipeline;
+2. captures one full-resolution RAW frame;
+3. converts the RAW Bayer data into an RGB image;
+4. applies the image processing;
+5. saves the result as a JPEG image;
+6. encodes the JPEG image in Base64;
+7. returns it to the main application.
+
+The image processing itself will be explained in the next section.
+
+### Accessing the camera through Linux
+
+The IMX219 is not controlled directly by `main.py`.
+
+Inside the `camera-1` container, `camera_service.py` uses standard Linux camera tools:
+
+```text
+media-ctl
+v4l2-ctl
+```
+
+These tools are provided by the `v4l-utils` package.
+
+`media-ctl` is used to configure the media pipeline between the IMX219 sensor and the video capture interface.
+
+`v4l2-ctl` is used to configure the sensor controls and capture the RAW frame.
+
+The camera service has access to the required Linux devices, including:
+
+```text
+/dev/media0
+/dev/video0
+/dev/v4l-subdev*
+```
+
+These devices are made available to the `camera-1` container by the camera brick configuration.
+
+In simple terms:
+
+```text
+camera_service.py
+       │
+       ├── media-ctl
+       │      │
+       │      └── configures the camera pipeline
+       │
+       └── v4l2-ctl
+              │
+              ├── controls exposure and analogue gain
+              │
+              └── captures the RAW image
+                       │
+                       ▼
+                     IMX219
+```
+
+### Dependencies of the camera container
+
+The camera container requires some additional software that is not needed by the main application:
+
+```text
+v4l-utils
+NumPy
+Pillow
+```
+
+These dependencies are installed automatically inside the `camera-1` container by:
+
+```text
+bricks/camera/brick_compose.yaml
+```
+
+The user does not need to install them manually on the UNO Q Linux system.
+
+This is one of the advantages of using a dedicated container: the camera-specific tools and Python libraries remain isolated from the main application environment.
