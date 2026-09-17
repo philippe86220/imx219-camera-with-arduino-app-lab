@@ -271,3 +271,129 @@ The message name acts like a label: it tells the receiving side what kind of inf
 The `data` object contains the information associated with that message.
 
 Thanks to the WebUI brick, the application does not need to implement the low-level communication between JavaScript in the browser and Python in the main container. The application can simply send and receive named messages.
+
+## Communication between `main.py` and the camera container
+
+We have seen how the WebUI communicates with `main.py`.
+
+The next step is to understand how `main.py`, running in the `main-1` container, communicates with the camera service running in the separate `camera-1` container.
+
+The file:
+
+```text
+bricks/camera/__init__.py
+```
+
+provides the link between these two parts of the application.
+
+### The `Camera` class
+
+`__init__.py` defines a Python class named `Camera`.
+
+This class gives `main.py` a simple way to request camera operations without having to know how the camera hardware is controlled.
+
+For example, `main.py` can simply call:
+
+```python
+camera.set_controls(exposure, analogue_gain)
+```
+
+or:
+
+```python
+camera.capture()
+```
+
+At this level, `main.py` does not need to know about V4L2 commands, Linux video devices, RAW image acquisition, or image processing.
+
+The `Camera` class takes care of sending the request to the camera service.
+
+In simple terms:
+
+```text
+main.py
+   │
+   │  camera.set_controls(...)
+   │  camera.capture()
+   ▼
+Camera class
+bricks/camera/__init__.py
+   │
+   │  HTTP request
+   ▼
+camera_service.py
+camera-1 container
+```
+
+### A small local HTTP server
+
+`camera_service.py` runs a small HTTP server inside the `camera-1` container.
+
+This is not a remote Internet server.
+
+It is a local service used only to allow the main application to communicate with the camera container.
+
+The service listens on port `9000` and provides simple endpoints for the operations required by the application:
+
+```text
+/health
+/set_controls
+/capture
+```
+
+The `Camera` class converts Python method calls into requests to these endpoints.
+
+For example:
+
+```text
+main.py
+    │
+    │ camera.set_controls(...)
+    ▼
+Camera.set_controls()
+    │
+    │ HTTP request to camera:9000/set_controls
+    ▼
+camera_service.py
+    │
+    ▼
+Camera hardware
+```
+
+The name `camera` in `camera:9000` refers to the camera service defined by the camera brick. It allows the main container to reach the camera container without needing to know its IP address.
+
+### Separation of responsibilities
+
+This architecture keeps each part of the application simple.
+
+```text
+main.py
+    decides what the application wants to do
+
+        │
+        ▼
+
+__init__.py / Camera class
+    knows how to contact the camera service
+
+        │
+        ▼
+
+camera_service.py
+    knows how to perform the requested camera operation
+
+        │
+        ▼
+
+Linux camera tools
+    communicate with the camera hardware
+
+        │
+        ▼
+
+IMX219
+```
+
+This separation is useful because `main.py` remains easy to read and does not contain the low-level code required to control the camera.
+
+The camera-specific implementation is kept inside the camera brick.
