@@ -240,14 +240,14 @@ The complete exchange can therefore be represented as:
 ```text
 app.js                                      main.py
   │                                            │
-  │  "regler_camera"                          │
-  │  exposure + analogue_gain                 │
-  ├──────────────────────────────────────────►│
+  │  "regler_camera"                           │
+  │  exposure + analogue_gain                  │
+  ├──────────────────────────────────────────► │
   │                                            │
   │                                    regler_camera()
   │                                            │
-  │  "camera_settings_update"                 │
-  │◄──────────────────────────────────────────┤
+  │  "camera_settings_update"                  │
+  │ ◄──────────────────────────────────────────┤
   │                                            │
 ```
 
