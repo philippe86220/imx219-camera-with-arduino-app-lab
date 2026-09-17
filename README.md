@@ -178,3 +178,96 @@ In simple terms:
                    │
                    ▼
                  IMX219
+
+                 ## Communication between the WebUI and `main.py`
+
+The WebUI displayed in the browser and the Python application need to exchange information.
+
+The WebUI brick makes this communication simple by providing two main functions:
+
+- `send_message(name, data)` sends a message identified by `name`, with `data` as its content;
+- `on_message(name, function)` listens for messages identified by `name` and calls `function` when such a message is received.
+
+These two functions can be used in both directions.
+
+This means that `app.js` can send a message to `main.py`, but `main.py` can also send a message back to `app.js`.
+
+In simple terms:
+
+```text
+Browser / app.js                         Python / main.py
+
+send_message("A", data)  ───────────►  on_message("A", function)
+
+on_message("B", function) ◄───────────  send_message("B", data)
+```
+
+### Example: changing the camera settings
+
+When the user clicks the button to apply the camera settings, `app.js` sends a message:
+
+```javascript
+ui.send_message("regler_camera", {
+    exposure: Number(exposure.value),
+    analogue_gain: Number(gain.value)
+});
+```
+
+In `main.py`, the application listens for this message:
+
+```python
+ui.on_message("regler_camera", regler_camera)
+```
+
+When the message arrives, the function `regler_camera()` is called and receives the data sent by the WebUI.
+
+After processing the request, `main.py` can send a message back to the WebUI:
+
+```python
+ui.send_message("camera_settings_update", result)
+```
+
+And `app.js` listens for this response:
+
+```javascript
+ui.on_message("camera_settings_update", (data) => {
+    // Update the WebUI
+});
+```
+
+The complete exchange can therefore be represented as:
+
+```text
+app.js                                      main.py
+  │                                            │
+  │  "regler_camera"                          │
+  │  exposure + analogue_gain                 │
+  ├──────────────────────────────────────────►│
+  │                                            │
+  │                                    regler_camera()
+  │                                            │
+  │  "camera_settings_update"                 │
+  │◄──────────────────────────────────────────┤
+  │                                            │
+```
+
+### Messages used by this application
+
+The same mechanism is used for all communication between the WebUI and `main.py`:
+
+```text
+app.js  ── "get_camera_defaults" ──────────►  main.py
+app.js  ◄─ "camera_defaults" ───────────────  main.py
+
+app.js  ── "regler_camera" ────────────────►  main.py
+app.js  ◄─ "camera_settings_update" ─────────  main.py
+
+app.js  ── "prendre_photo" ─────────────────►  main.py
+app.js  ◄─ "photo_update" ───────────────────  main.py
+```
+
+The message name acts like a label: it tells the receiving side what kind of information has arrived.
+
+The `data` object contains the information associated with that message.
+
+Thanks to the WebUI brick, the application does not need to implement the low-level communication between JavaScript in the browser and Python in the main container. The application can simply send and receive named messages.
