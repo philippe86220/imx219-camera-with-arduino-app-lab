@@ -1304,3 +1304,22 @@ WebUI
 For someone discovering Arduino App Lab, the important idea is that each layer has a specific responsibility.
 
 Understanding these layers separately makes the complete application much easier to understand, modify and extend.
+
+## Acknowledgements
+
+This project was developed and tested on real hardware by Philippe Costes.
+
+OpenAI's ChatGPT was used extensively throughout the development process as a technical assistant.
+
+Its contribution included:
+
+- helping to understand the Arduino App Lab architecture and the interaction between its different components;
+- assisting with the design and debugging of the Python, WebUI and camera service code;
+- helping to understand the Linux camera pipeline, V4L2, RAW Bayer acquisition and image processing;
+- discussing and refining the application architecture step by step;
+- assisting with testing strategies and the interpretation of results;
+- helping to structure, explain and write this README in a way intended to remain accessible to beginners.
+
+The hardware assembly, experiments, camera tests, parameter adjustments and validation of the final application were performed on the actual Arduino UNO Q / IMX219 setup.
+
+The README was written collaboratively with ChatGPT from the technical work, observations and tests carried out during the development of the project.
