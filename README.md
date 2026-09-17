@@ -54,3 +54,43 @@ The WebUI interacts with the user.
 The Media Carrier provides the hardware interface used to connect the IMX219 camera to the board.
 
 The following sections explain these different layers step by step.
+
+## Hardware and software requirements
+
+### Hardware
+
+This project uses:
+
+- an Arduino UNO Q;
+- an Arduino® UNO™ Media Carrier;
+- a Sony IMX219 camera module;
+- the appropriate camera ribbon cable.
+
+The IMX219 camera is connected to one of the MIPI-CSI camera connectors
+of the Arduino® UNO™ Media Carrier.
+
+#### Arduino® UNO™ Media Carrier
+
+The Arduino® UNO™ Media Carrier provides the hardware interface used
+to connect the IMX219 camera to the UNO Q.
+
+![Arduino UNO Media Carrier](images/uno-media-carrier.png)
+
+#### Camera used for this project
+
+The camera used during development is a Sony IMX219-based camera module
+supplied with its camera ribbon cable.
+
+[Camera used for this project (Amazon France)](https://www.amazon.fr/dp/B0CPM292WP)
+
+![Sony IMX219 camera module and ribbon cable](images/imx219-camera.png)
+
+### Software
+
+The application is developed and executed with Arduino App Lab.
+
+No manual installation of the camera processing dependencies is required
+on the Linux system. The additional packages needed by the camera service
+are installed automatically inside its dedicated container.
+
+These dependencies will be described later when we look at the camera brick.
