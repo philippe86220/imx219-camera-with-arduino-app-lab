@@ -1307,7 +1307,7 @@ Understanding these layers separately makes the complete application much easier
 
 ## Acknowledgements
 
-This project was developed and tested on real hardware by Philippe Costes.
+This project was developed and tested by Philippe Costes using an Arduino UNO Q, an Arduino® UNO™ Media Carrier and a Sony IMX219 camera.
 
 OpenAI's ChatGPT was used extensively throughout the development process as a technical assistant.
 
@@ -1320,6 +1320,6 @@ Its contribution included:
 - assisting with testing strategies and the interpretation of results;
 - helping to structure, explain and write this README in a way intended to remain accessible to beginners.
 
-The hardware assembly, experiments, camera tests, parameter adjustments and validation of the final application were performed on the actual Arduino UNO Q / IMX219 setup.
+The hardware assembly, experiments, camera tests, parameter adjustments and validation of the final application were performed by Philippe Costes.
 
 The README was written collaboratively with ChatGPT from the technical work, observations and tests carried out during the development of the project.
