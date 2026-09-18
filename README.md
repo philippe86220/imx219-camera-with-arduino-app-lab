@@ -1257,7 +1257,7 @@ Future versions can build on this foundation without changing the basic architec
 
 ## Development notes
 
-This project was developed step by step on a real Arduino UNO Q equipped with an Arduino® UNO™ Media Carrier and a Sony IMX219 camera connected to `CAMERA0`.
+This project was developed step by step on an Arduino UNO Q equipped with an Arduino® UNO™ Media Carrier and a Sony IMX219 camera connected to `CAMERA0`.
 
 The application was tested throughout development with different exposure and analogue gain settings and under different lighting conditions.
 
